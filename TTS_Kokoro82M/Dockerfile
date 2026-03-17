@@ -4,24 +4,24 @@ FROM python:3.12-slim-bookworm
 # Variabili d'ambiente
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    FLET_SERVER_PORT=8502
+    FLET_SERVER_PORT=8502 \
+    PATH="/home/fletuser/.local/bin:${PATH}"
 
 WORKDIR /app
 
-# Installiamo solo ffmpeg per pydub (non serve gcc senza simpleaudio)
+# Installiamo ffmpeg
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Creiamo l'utente PRIMA di installare le dipendenze se vogliamo installarle a livello di sistema
-# o DOPO se usiamo --user. Qui installiamo a livello di sistema come root e poi passiamo all'utente.
 RUN useradd -m fletuser
 
-# Copiamo i requisiti e installiamo
+# Copiamo i requisiti e installiamo forzando l'installazione di sistema (necessario in Debian Bookworm)
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    python -m flet --version  # Verifica che il CLI sia installato e pronto
+    pip install --no-cache-dir -r requirements.txt --break-system-packages && \
+    python -m pip show flet-cli && \
+    python -m flet --version
 
 # Copiamo il resto del codice e cambiamo i permessi
 COPY . .
