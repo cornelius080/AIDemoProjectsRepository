@@ -1,58 +1,34 @@
-# --- Stage 1: Build Stage ---
-FROM python:3.12-slim-bookworm AS builder
-
-# Set environment variables for building
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
-
-WORKDIR /app
-
-# Install build dependencies
-# - build-essential: Includes gcc, make, etc.
-# - libasound2-dev: Required for building simpleaudio
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libasound2-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements first to leverage Docker layer caching
-COPY requirements.txt .
-
-# Install dependencies into a separate directory
-# We install everything here to be copied to the final stage
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
-
-
-# --- Stage 2: Runtime Stage ---
+# Versione semplificata per Flet in modalità Web
 FROM python:3.12-slim-bookworm
 
-# Set environment variables
+# Variabili d'ambiente
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     FLET_SERVER_PORT=8502
 
 WORKDIR /app
 
-# Install runtime system dependencies
-# - ffmpeg: Required for audio processing by pydub
-# - libasound2: Required for audio output
+# Installiamo solo ffmpeg per pydub (non serve gcc senza simpleaudio)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
-    libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the installed dependencies from the builder stage
-COPY --from=builder /install /usr/local
+# Creiamo l'utente PRIMA di installare le dipendenze se vogliamo installarle a livello di sistema
+# o DOPO se usiamo --user. Qui installiamo a livello di sistema come root e poi passiamo all'utente.
+RUN useradd -m fletuser
 
-# Create a non-root user for security
-RUN useradd -m fletuser && chown -R fletuser:fletuser /app
+# Copiamo i requisiti e installiamo
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiamo il resto del codice e cambiamo i permessi
+COPY . .
+RUN chown -R fletuser:fletuser /app
+
+# Passiamo all'utente non-root
 USER fletuser
 
-# Copy the application code
-COPY --chown=fletuser:fletuser . .
-
-# Expose the port Flet will run on
 EXPOSE 8502
 
-# Run the application in web mode
+# Avviamo Flet in modalità Web
 CMD ["flet", "run", "src/main.py", "--web", "--port", "8502", "--host", "0.0.0.0"]
