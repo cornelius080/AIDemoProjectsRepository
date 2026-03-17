@@ -20,7 +20,8 @@ RUN useradd -m fletuser
 # Copiamo i requisiti e installiamo
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt && \
+    python -m flet --version  # Verifica che il CLI sia installato e pronto
 
 # Copiamo il resto del codice e cambiamo i permessi
 COPY . .
