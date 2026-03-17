@@ -19,7 +19,8 @@ RUN useradd -m fletuser
 
 # Copiamo i requisiti e installiamo
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copiamo il resto del codice e cambiamo i permessi
 COPY . .
@@ -30,5 +31,5 @@ USER fletuser
 
 EXPOSE 8502
 
-# Avviamo Flet in modalità Web
-CMD ["flet", "run", "src/main.py", "--web", "--port", "8502", "--host", "0.0.0.0"]
+# Avviamo Flet in modalità Web tramite il modulo python per evitare problemi di path
+CMD ["python", "-m", "flet", "run", "src/main.py", "--web", "--port", "8502", "--host", "0.0.0.0"]
