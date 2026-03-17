@@ -1,3 +1,4 @@
+# Dipendenze per TTS_Kokoro82M
 flet==0.28.3
 flet-cli==0.28.3
 flet-audio==0.1.0
