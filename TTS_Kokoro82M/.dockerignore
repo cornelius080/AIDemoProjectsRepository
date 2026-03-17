@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv
+env
+.env
+.pytest_cache
+
+# Project specific
+implementation_plan.md
+walkthrough.md
+*.wav
+*.mp3
+
+# IDEs
+.vscode
+.idea
+
+# Gemni / Agentic
+.gemini
+brain
+task.md
