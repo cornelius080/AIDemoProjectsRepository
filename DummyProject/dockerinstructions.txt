@@ -1,0 +1,14 @@
+build the image:
+sudo docker build --no-cache -t dummyproject .
+
+run the container:
+
+1. Modalita' Interactive
+Ti permette di vedere i log dell'app in tempo reale e di fermarla con Ctrl + C.
+Perché usarla: Per verificare subito se l'app parte correttamente o vedere eventuali errori.
+sudo docker run -it -p 8080:8080 --name dummy_container dummyproject
+
+2. Modalita' Detached
+Non mostra i log dell'app. Esegue il container in background (libera subito il terminale). L'app rimane accesa "in silenzio" senza tenere il terminale occupato.
+Perché usarla: Quando l'app è già in esecuzione e non hai bisogno di vedere i log.
+sudo docker run -d -p 8080:8080 --name dummy_container dummyproject
