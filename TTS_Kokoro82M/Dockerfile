@@ -1,4 +1,4 @@
-# Build Version: 4.0 (Scripted execution)
+# Build Version: 5.0 (Flet-web fix)
 FROM python:3.12-slim-bookworm
 
 # Variabili d'ambiente
