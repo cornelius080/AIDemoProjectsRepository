@@ -1,6 +1,6 @@
 import flet as ft
 import flet_audio as fta
-import base64, threading
+import base64, threading, os
 from pathlib import Path
 from datetime import datetime
 from language_detector import LanguageDetector
@@ -420,4 +420,12 @@ def main(page: ft.Page):
 
     update_controls()
 
-ft.app(target=main, assets_dir="assets")
+if __name__ == "__main__":
+    is_docker = os.getenv("DOCKER_RUNNING") == "true"
+    ft.app(
+        target=main,
+        assets_dir="assets",
+        view=ft.AppView.WEB_BROWSER if is_docker else None,
+        host="0.0.0.0" if is_docker else "127.0.0.1",
+        port=8080 if is_docker else 0
+    )

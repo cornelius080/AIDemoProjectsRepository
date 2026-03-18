@@ -123,7 +123,7 @@ This is the easiest way to start the application with its configuration:
 ```bash
 docker-compose up --build
 ```
-The application will be accessible at [http://localhost:8502](http://localhost:8502).
+The application will be accessible at [http://localhost:8080](http://localhost:8080).
 
 #### 3. Run with Docker CLI
 If you prefer building and running the image manually:
@@ -132,7 +132,7 @@ If you prefer building and running the image manually:
 docker build -t tts-kokoro82m .
 
 # Run the container
-docker run -p 8502:8502 -e HF_TOKEN_READ=your_token_here tts-kokoro82m
+docker run -p 8080:8080 -e HF_TOKEN_READ=your_token_here tts-kokoro82m
 ```
 
 ---

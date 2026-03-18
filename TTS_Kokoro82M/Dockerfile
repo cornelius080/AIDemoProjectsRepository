@@ -1,38 +1,31 @@
-# Build Version: 3.0 (User-mode installation)
+# Build Version: 4.0 (Scripted execution)
 FROM python:3.12-slim-bookworm
 
 # Variabili d'ambiente
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    FLET_SERVER_PORT=8502 \
-    PIP_NO_CACHE_DIR=1 \
-    PATH="/home/fletuser/.local/bin:${PATH}"
+    DOCKER_RUNNING=true
 
 WORKDIR /app
 
-# Installiamo ffmpeg come root
+# Installiamo ffmpeg per pydub
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg && \
     rm -rf /var/lib/apt/lists/* && \
-    useradd -m fletuser && \
-    chown fletuser:fletuser /app
+    useradd -m fletuser
 
-# Passiamo subito all'utente non-root per l'installazione
+# Installiamo le dipendenze
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt --break-system-packages
+
+# Copiamo il codice
+COPY . .
+RUN chown -R fletuser:fletuser /app
+
+# Passiamo all'utente non-root
 USER fletuser
+EXPOSE 8080
 
-# Pulizia preventiva della cache pip locale dell'utente
-RUN pip cache purge || true
-
-# Copiamo i requisiti e installiamo in user-mode
-COPY --chown=fletuser:fletuser requirements.txt .
-RUN pip install --user --upgrade pip && \
-    pip install --user -r requirements.txt && \
-    python -m flet --version  # Deve mostrare la versione correttamente
-
-# Copiamo il resto del codice
-COPY --chown=fletuser:fletuser . .
-
-EXPOSE 8502
-
-# Avviamo Flet in modalità Web
-CMD ["python", "-m", "flet", "run", "src/main.py", "--web", "--port", "8502", "--host", "0.0.0.0"]
+# Avviamo direttamente lo script Python (non serve flet-cli)
+CMD ["python", "src/main.py"]

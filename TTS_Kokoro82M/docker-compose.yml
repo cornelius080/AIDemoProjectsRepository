@@ -6,7 +6,7 @@ services:
     image: tts-kokoro82m:latest
     container_name: tts_app
     ports:
-      - "8502:8502"
+      - "8080:8080"
     environment:
       - HF_TOKEN_READ=${HF_TOKEN_READ}
     restart: unless-stopped
