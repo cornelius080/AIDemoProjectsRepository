@@ -11,7 +11,11 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
+# Case-specific ignores for volumes
+downloads/*
+!downloads/.gitkeep
+uploads/*
+!uploads/.gitkeep
 eggs/
 .eggs/
 lib/

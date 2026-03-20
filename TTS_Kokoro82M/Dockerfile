@@ -28,7 +28,7 @@ COPY . .
 RUN chown -R fletuser:fletuser /app
 
 # Definizione volumi
-VOLUME ["/app/downloads"]
+VOLUME ["/app/downloads", "/app/uploads"]
 
 # Passiamo all'utente non-root
 USER fletuser
