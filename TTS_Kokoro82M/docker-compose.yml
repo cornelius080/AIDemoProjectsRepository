@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: tts-kokoro82m:v6.4
+    image: tts-kokoro82m:v6.7
     container_name: tts_container
     ports:
       - "8080:8080"

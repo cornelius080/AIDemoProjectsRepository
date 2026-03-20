@@ -1,4 +1,4 @@
-# Build Version: 6.4 (Corrected FilePicker API)
+# Build Version: 6.7 (Corrected API & View)
 FROM python:3.12-slim-bookworm
 
 # Variabili d'ambiente

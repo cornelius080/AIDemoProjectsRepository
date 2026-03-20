@@ -159,25 +159,17 @@ def main(page: ft.Page):
 
     def on_upload_progress(e: ft.FilePickerUploadEvent):
         """
-        Handles the completion of the file upload.
-        Reads the uploaded content from the container's local path.
+        Handles the progress of the file upload.
+        When progress reaches 100% (1.0), it reads the file from the container's path.
         """
-        if e.status == ft.FilePickerStatus.PICKED:
-            # We don't read yet
-            pass
-        elif e.status == ft.FilePickerStatus.UPLOADING:
-            # Maybe show a progress bar in the future
-            pass
-        elif e.status == ft.FilePickerStatus.FINISH:
+        if e.progress == 1.0:
             file_name = e.file_name
             container_path = os.path.join("uploads", file_name)
             
-            # Ensure the directory exists (just in case)
-            os.makedirs("uploads", exist_ok=True)
-            
+            # Brief delay to ensure file system sync if necessary
             selected_file_path["value"] = container_path
             try:
-                # Read from the container's filesystem where the file was uploaded
+                # Read from the container's filesystem where Flet saved the upload
                 with open(container_path, "r", encoding="utf-8") as file:
                     content = file.read()
                 selected_file_content["value"] = content
@@ -345,8 +337,6 @@ def main(page: ft.Page):
     
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result, on_upload=on_upload_progress)
     page.overlay.append(pick_files_dialog)
-    # Configure the upload destination within the container
-    pick_files_dialog.upload_url = "/uploads"
     if not os.path.exists("uploads"): os.makedirs("uploads")
 
     page.title = "Text2Speech Kokoro82M"
@@ -456,9 +446,15 @@ def main(page: ft.Page):
 
 if __name__ == "__main__":
     is_docker = os.getenv("DOCKER_RUNNING") == "true"
+    
+    # Internal fallback for secure uploads (does not touch OS environment)
+    if not os.getenv("FLET_SECRET_KEY"):
+        os.environ["FLET_SECRET_KEY"] = "local_dev_only_key_82m"
+    
     ft.app(
         target=main,
         assets_dir="assets",
+        upload_dir="uploads",
         view=ft.AppView.WEB_BROWSER if is_docker else None,
         host="0.0.0.0" if is_docker else "127.0.0.1",
         port=8080 if is_docker else 0

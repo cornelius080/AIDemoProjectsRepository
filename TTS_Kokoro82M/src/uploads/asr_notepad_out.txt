@@ -1,0 +1,1 @@
+ Mi sto emozionando, sembra che l'app che ho sviluppato funzioni correttamente. Adesso la sto testando in modalità locale, registrando la mia voce dal microfono e provando a trascrivere l'audio generato. Spero che funzioni e che dia ricche soddisfazioni a tutti Ciao
