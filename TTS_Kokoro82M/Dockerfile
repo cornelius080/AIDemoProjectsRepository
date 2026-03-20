@@ -1,10 +1,9 @@
-# Build Version: 6.7 (Corrected API & View)
+# Build Version: 6.8 (Security Warning Fix)
 FROM python:3.12-slim-bookworm
 
 # Variabili d'ambiente
 ENV PYTHONUNBUFFERED=1 \
     FLET_SERVER_PORT=8080 \
-    FLET_SECRET_KEY="flet_secret_key_placeholder" \
     DOCKER_RUNNING=true
 
 WORKDIR /app
