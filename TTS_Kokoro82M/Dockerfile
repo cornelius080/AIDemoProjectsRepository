@@ -1,4 +1,4 @@
-# Build Version: 6.3 (Flet Upload Security Fix)
+# Build Version: 6.4 (Corrected FilePicker API)
 FROM python:3.12-slim-bookworm
 
 # Variabili d'ambiente

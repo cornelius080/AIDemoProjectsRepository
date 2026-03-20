@@ -148,7 +148,7 @@ def main(page: ft.Page):
             
             # Prepare the upload to the container's /app/uploads folder
             upload_url = page.get_upload_url(file_name, 600)
-            pick_files_dialog.upload_files(
+            pick_files_dialog.upload(
                 [ft.FilePickerUploadFile(file_name, upload_url=upload_url)]
             )
         else:

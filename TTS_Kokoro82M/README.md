@@ -129,7 +129,7 @@ The application will be accessible at [http://localhost:8080](http://localhost:8
 If you prefer building and running the image manually:
 ```bash
 # Build the image
-sudo docker build --no-cache -t tts-kokoro82m:v6.3 .
+sudo docker build --no-cache -t tts-kokoro82m:v6.4 .
 
 # Run the container with Volumes and Security Key
 sudo docker run -d \
@@ -139,7 +139,7 @@ sudo docker run -d \
   -v $(pwd)/uploads:/app/uploads \
   -e HF_TOKEN_READ="your_token_here" \
   -e FLET_SECRET_KEY="any_random_string" \
-  tts-kokoro82m:v6.3
+  tts-kokoro82m:v6.4
 ```
 
 > [!TIP]
