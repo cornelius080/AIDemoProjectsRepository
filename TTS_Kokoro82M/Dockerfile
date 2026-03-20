@@ -1,4 +1,4 @@
-# Build Version: 6.0 (Volume and File Handling)
+# Build Version: 6.2 (Folder Persistence)
 FROM python:3.12-slim-bookworm
 
 # Variabili d'ambiente
