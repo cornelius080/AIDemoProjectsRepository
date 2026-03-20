@@ -129,11 +129,19 @@ The application will be accessible at [http://localhost:8080](http://localhost:8
 If you prefer building and running the image manually:
 ```bash
 # Build the image
-docker build -t tts-kokoro82m .
+sudo docker build --no-cache -t tts-kokoro82m:v6 .
 
-# Run the container
-docker run -p 8080:8080 -e HF_TOKEN_READ=your_token_here tts-kokoro82m
+# Run the container with Volume for persistent downloads
+sudo docker run -d \
+  -p 8080:8080 \
+  --name tts_container \
+  -v $(pwd)/downloads:/app/downloads \
+  -e HF_TOKEN_READ="your_token_here" \
+  tts-kokoro82m:v6
 ```
+
+> [!TIP]
+> **File Persistence**: By mapping the `downloads` folder with the `-v` parameter, you will find all generated audio files directly on your host machine in the `downloads` subfolder.
 
 ---
 

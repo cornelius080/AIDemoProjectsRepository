@@ -139,17 +139,46 @@ def main(page: ft.Page):
     def pick_files_result(e: ft.FilePickerResultEvent):
         """
         Handles the result of the file picker dialog.
-        
-        Reads the selected file content and updates the state.
+        In Web mode, it prepares the upload of the selected file.
         """
-        selected_file_path["value"] = None
-        selected_file_content["value"] = None
         if e.files:
             file_entry = e.files[0]
-            file_path = file_entry.path if file_entry.path else file_entry.name
-            selected_file_path["value"] = file_path
+            # In Web mode, file_entry.path is None. We use the name.
+            file_name = file_entry.name
+            
+            # Prepare the upload to the container's /app/uploads folder
+            upload_url = page.get_upload_url(file_name, 600)
+            pick_files_dialog.upload_files(
+                [ft.FilePickerUploadFile(file_name, upload_url=upload_url)]
+            )
+        else:
+            selected_file_path["value"] = None
+            selected_file_content["value"] = None
+            reset_dropdowns_to_neutral()
+            update_controls()
+
+    def on_upload_progress(e: ft.FilePickerUploadEvent):
+        """
+        Handles the completion of the file upload.
+        Reads the uploaded content from the container's local path.
+        """
+        if e.status == ft.FilePickerStatus.PICKED:
+            # We don't read yet
+            pass
+        elif e.status == ft.FilePickerStatus.UPLOADING:
+            # Maybe show a progress bar in the future
+            pass
+        elif e.status == ft.FilePickerStatus.FINISH:
+            file_name = e.file_name
+            container_path = os.path.join("uploads", file_name)
+            
+            # Ensure the directory exists (just in case)
+            os.makedirs("uploads", exist_ok=True)
+            
+            selected_file_path["value"] = container_path
             try:
-                with open(file_path, "r", encoding="utf-8") as file:
+                # Read from the container's filesystem where the file was uploaded
+                with open(container_path, "r", encoding="utf-8") as file:
                     content = file.read()
                 selected_file_content["value"] = content
                 if content.strip():
@@ -157,15 +186,13 @@ def main(page: ft.Page):
                 else:
                     reset_dropdowns_to_neutral()
             except Exception as err:
-                print(f"Could not read file {file_path}: {err}")
+                print(f"Could not read uploaded file {container_path}: {err}")
                 selected_file_path["value"] = None
                 selected_file_content["value"] = None
                 reset_dropdowns_to_neutral()
-        else:
-            selected_file_path["value"] = None
-            selected_file_content["value"] = None
-            reset_dropdowns_to_neutral()
-        update_controls()
+            
+            update_controls()
+            page.update()
    
     def open_file_dialog():
         """
@@ -280,16 +307,20 @@ def main(page: ft.Page):
         
     def on_download_audio_click(e: ft.ControlEvent) -> None:
         """
-        Downloads the generated audio content to a local file.
+        Downloads the generated audio content to the dedicated 'downloads' folder.
         """
         nonlocal audio_bytes
 
         if audio_bytes is not None:
-            output_path = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "_audio_generated.wav"
+            # Ensure the directory exists
+            os.makedirs("downloads", exist_ok=True)
+            
+            filename = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "_audio_generated.wav"
+            output_path = os.path.join("downloads", filename)
             out_file = Path(output_path)
             try:
                 out_file.write_bytes(audio_bytes)
-                page.open(ft.SnackBar(ft.Text(f"Audio downloaded successfully to: {out_file.absolute()}")))
+                page.open(ft.SnackBar(ft.Text(f"Audio saved to: {output_path} (Host folder)")))
             except Exception as e:
                 page.open(ft.SnackBar(ft.Text(f"Failed to save file: {e}")))
             
@@ -312,8 +343,11 @@ def main(page: ft.Page):
         page.open(ft.SnackBar(ft.Text(f"⚠️  TTS client initialisation failed: {exc}")))
         page.update()
     
-    pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
+    pick_files_dialog = ft.FilePicker(on_result=pick_files_result, on_upload=on_upload_progress)
     page.overlay.append(pick_files_dialog)
+    # Configure the upload destination within the container
+    pick_files_dialog.upload_url = "/uploads"
+    if not os.path.exists("uploads"): os.makedirs("uploads")
 
     page.title = "Text2Speech Kokoro82M"
     page.theme = ft.Theme(color_scheme_seed=ft.Colors.DEEP_ORANGE_50)

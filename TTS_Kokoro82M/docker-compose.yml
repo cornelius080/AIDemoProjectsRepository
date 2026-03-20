@@ -3,15 +3,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: tts-kokoro82m:latest
-    container_name: tts_app
+    image: tts-kokoro82m:v6
+    container_name: tts_container
     ports:
       - "8080:8080"
     environment:
       - HF_TOKEN_READ=${HF_TOKEN_READ}
+      - DOCKER_RUNNING=true
     restart: unless-stopped
     volumes:
       - ./downloads:/app/downloads
+      - ./uploads:/app/uploads
     # Override the download directory in the app if needed, 
     # but the current app saves to the current directory.
     # If the user runs the app and downloads, it will appear in ./downloads on host.

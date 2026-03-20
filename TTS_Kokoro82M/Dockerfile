@@ -1,4 +1,4 @@
-# Build Version: 5.0 (Flet-web fix)
+# Build Version: 6.0 (Volume and File Handling)
 FROM python:3.12-slim-bookworm
 
 # Variabili d'ambiente
@@ -14,6 +14,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/* && \
     useradd -m fletuser
 
+# Prepariamo le directory per i volumi
+RUN mkdir -p downloads uploads && \
+    chown -R fletuser:fletuser /app
+
 # Installiamo le dipendenze
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -22,6 +26,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copiamo il codice
 COPY . .
 RUN chown -R fletuser:fletuser /app
+
+# Definizione volumi
+VOLUME ["/app/downloads"]
 
 # Passiamo all'utente non-root
 USER fletuser
