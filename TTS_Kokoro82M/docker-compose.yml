@@ -3,12 +3,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: tts-kokoro82m:v6.2
+    image: tts-kokoro82m:v6.3
     container_name: tts_container
     ports:
       - "8080:8080"
     environment:
       - HF_TOKEN_READ=${HF_TOKEN_READ}
+      - FLET_SECRET_KEY=${FLET_SECRET_KEY:-flet_secret_key_placeholder}
       - DOCKER_RUNNING=true
     restart: unless-stopped
     volumes:

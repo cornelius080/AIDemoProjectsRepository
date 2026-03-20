@@ -1,9 +1,10 @@
-# Build Version: 6.2 (Folder Persistence)
+# Build Version: 6.3 (Flet Upload Security Fix)
 FROM python:3.12-slim-bookworm
 
 # Variabili d'ambiente
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
+    FLET_SERVER_PORT=8080 \
+    FLET_SECRET_KEY="flet_secret_key_placeholder" \
     DOCKER_RUNNING=true
 
 WORKDIR /app
