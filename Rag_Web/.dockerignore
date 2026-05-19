@@ -1,0 +1,50 @@
+# =============================================================================
+# .dockerignore for RAG Web Application
+# =============================================================================
+# Exclude Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Exclude virtual environments
+venv/
+env/
+.venv/
+
+# Exclude IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Exclude git
+.git/
+.gitignore
+
+# Exclude test files (not needed in production)
+test_*.py
+*_test.py
+tests/
+Notebook/
+
+# Exclude documentation
+README.md
+LICENSE
+*.md
+
+# Exclude local development files
+*.log
+*.sqlite3
+.DS_Store
+Thumbs.db
+
+# Exclude temporary files
+*.tmp
+temp/
+tmp*/
