@@ -9,6 +9,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-0.1.4}
     container_name: rag-web-assistant
     ports:
       - "8501:8501"
@@ -27,9 +29,8 @@ services:
       - STREAMLIT_SERVER_HEADLESS=true
       - STREAMLIT_SERVER_PORT=8501
     volumes:
-      # Bind mount: the file will be mounted into the container
-      # All that should be modified in the UI will be saved directly in the host file. 
-      - ./apy_keys.env:/app/apy_keys.env
+      # Named volume to persist API keys between container recreates
+      - rag_data:/app
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501')"]
@@ -37,3 +38,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  rag_data:
+    driver: local

@@ -5,11 +5,16 @@
 FROM python:3.11-slim
 
 # =============================================================================
+# Build Arguments
+# =============================================================================
+ARG VERSION=0.1.4
+
+# =============================================================================
 # Labels & Metadata
 # =============================================================================
 LABEL maintainer="DevOps Engineer"
 LABEL description="RAG-powered Web Research Assistant with Streamlit"
-LABEL version="1.0.0"
+LABEL version="${VERSION}"
 
 # =============================================================================
 # Environment Variables
@@ -51,18 +56,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # =============================================================================
-# Create default apy_keys.env if not exists (will be mounted from host)
-# =============================================================================
-RUN if [ ! -f /app/apy_keys.env ]; then \
-    touch /app/apy_keys.env; \
-    fi
-
-# =============================================================================
 # Create Non-Root User (Security Best Practice)
 # =============================================================================
 RUN useradd --create-home --shell /bin/bash appuser \
-    && chown -R appuser:appuser /app \
-    && chmod 666 /app/apy_keys.env 2>/dev/null || true
+    && chown -R appuser:appuser /app
 
 # =============================================================================
 # Switch to Non-Root User
