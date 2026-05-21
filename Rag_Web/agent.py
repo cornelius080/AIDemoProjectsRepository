@@ -236,6 +236,38 @@ class RagWebAgent:
             context={"tool_type": tool_type}
         )
 
+    def _extract_text_from_content(self, content) -> str:
+        """Extract plain text from Langchain message content (handles Gemini structured output)."""
+        if isinstance(content, str):
+            if content.strip().startswith("["):
+                try:
+                    parsed = json.loads(content)
+                    if isinstance(parsed, list):
+                        texts = []
+                        is_structured = False
+                        for item in parsed:
+                            if isinstance(item, dict) and "text" in item:
+                                texts.append(item["text"])
+                                is_structured = True
+                            elif isinstance(item, str):
+                                texts.append(item)
+                        # If at least one dict with 'text' was found, we consider it a structured payload
+                        if is_structured and texts:
+                            return "".join(texts)
+                except (json.JSONDecodeError, TypeError):
+                    pass
+            return content
+        elif isinstance(content, list):
+            texts = []
+            for item in content:
+                if isinstance(item, dict) and "text" in item:
+                    texts.append(item["text"])
+                elif isinstance(item, str):
+                    # In lists directly returned by LangChain, simple string tokens are valid
+                    texts.append(item)
+            return "".join(texts)
+        return str(content)
+
     def stream_agent(self, query: str, tool_type: str = "search", thread_id: str = "conversation_1") -> Iterator[str]:
         """
         Synchronously streams the LLM response tokens based on the tool context.
@@ -267,14 +299,17 @@ class RagWebAgent:
         # - overview: the last message from the AI
         # - results: parsed from the tool message (penultimate message)
         
-        overview = result["messages"][-1].content
+        overview = self._extract_text_from_content(result["messages"][-1].content)
         
         # The tool message is the one before the final AI response
         tool_msg_content = result["messages"][-2].content
+        if isinstance(tool_msg_content, list):
+             tool_msg_content = self._extract_text_from_content(tool_msg_content)
+             
         try:
             tool_data = json.loads(tool_msg_content)
             results = tool_data.get("results", [])
-        except (json.JSONDecodeError, AttributeError):
+        except (json.JSONDecodeError, TypeError, AttributeError):
             results = []
             
         return overview, results
@@ -359,20 +394,7 @@ class RagWebAgent:
             if isinstance(token, AIMessageChunk):
                 content = token.content
                 
-                # Handle structured content (JSON strings from Google models)
-                if isinstance(content, str) and content.startswith("["):
-                    try:
-                        parsed = json.loads(content)
-                        # Extract text from structured content
-                        if parsed and isinstance(parsed, list):
-                            for item in parsed:
-                                if item.get("type") == "text":
-                                    yield item.get("text", "")
-                                    return
-                    except (json.JSONDecodeError, TypeError):
-                        # Not valid JSON, yield as-is
-                        pass
-                
-                if content:
-                    yield content
+                extracted_text = self._extract_text_from_content(content)
+                if extracted_text:
+                    yield extracted_text
 
