@@ -1,0 +1,23 @@
+version: '3.8' #version number of docker compose
+
+services:
+  gemini-voice-agent:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: gemini-voice-agent:latest
+    container_name: gemini-voice-agent
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    # We load credentials using the .env file that holds:
+    # GOOGLE_API_KEY
+    # LANGFUSE_PUBLIC_KEY
+    # LANGFUSE_SECRET_KEY
+    # LANGFUSE_HOST
+    # Keep the .env file locally generated and ignored by VCS
+    restart: unless-stopped
+    # Use standard host network if needed to access local audio devices directly (only on Linux hosts),
+    # but since it's a websocket server that bridges browser audio to Gemini, 
+    # the server itself does not need direct host audio device access to work.
