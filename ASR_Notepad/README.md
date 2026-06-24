@@ -1,155 +1,135 @@
 # ASR Notepad
 
-ASR Notepad is a modern, cross-platform voice-to-text application designed to simplify note-taking through high-accuracy transcription. Built with Python and Flet, it offers a seamless experience for capturing ideas via microphone or audio file uploads, utilizing state-of-the-art **Whisper-large-v3-turbo** models.
-
-## Project Description
-
-The motivation behind **ASR Notepad** is to eliminate the friction of manual typing during meetings, lectures, or creative sessions. Many traditional note-taking apps lack integrated high-quality ASR (Automatic Speech Recognition), forcing users to switch between tools.
-
-This project solves this by:
-- Providing an intuitive "one-click" recording interface.
-- Offering **dual-mode transcription**: Cloud-based (Hugging Face API) for speed or Local-based (Transformers) for privacy and offline use.
-- Maintaining a clean, distraction-free notepad with export capabilities.
-- Ensuring persistence of settings and API keys for a personalized workflow.
-
----
-
 ## Table of Contents
+- [Project Description](#project-description)
 - [Architecture Description](#architecture-description)
 - [Technologies Description](#technologies-description)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
-- [Building the App](#building-the-app)
+- [API Documentation](#api-documentation)
 
----
+## Project Description
+
+**ASR Notepad** is an intelligent, web-based notepad application integrated with **Automatic Speech Recognition (ASR)** capabilities. It is designed to assist users in transcribing spoken audio into text in real-time or processing pre-recorded audio files. The application allows users to dictate notes seamlessly using their microphone or transcribe audio files (`.mp3`, `.wav`, `.flac`) present in the uploads directory. 
+
+The primary motivation behind ASR Notepad is to boost productivity by providing a distraction-free environment for dictation and note-taking. To ensure flexibility and privacy, the application supports two operational modes:
+- **Hub Mode**: Utilizes the Hugging Face Inference API for lightweight, cloud-based transcription.
+- **Local Mode**: Uses a local PyTorch and Transformers pipeline to process audio directly on the user's machine, keeping data private and enabling offline capabilities.
+
+By default, the application utilizes the robust `openai/whisper-large-v3-turbo` model for high-accuracy transcriptions.
 
 ## Architecture Description
 
-The application follows a modular architecture that decouple the user interface from the ASR processing logic, allowing for easy switching between local and cloud engines.
+The application follows a modular architecture consisting of the following key components:
 
-### Component Logic
+- **Frontend (Flet UI)**: Manages the notepad interface, dialogs, settings, and user interactions.
+- **Audio Recorder**: Uses `PyAudio` to capture real-time audio from the user's microphone on a background thread.
+- **ASR Client**: A unified client that delegates transcription requests to the active ASR Engine.
+- **ASR Engines**: 
+  - `HubASREngine`: Communicates with the Hugging Face Inference API.
+  - `LocalASREngine`: Loads the model natively via `transformers` and `torch`.
 
 ```mermaid
 graph TD
-    User([User]) --> UI[Flet UI main.py]
-    UI -->|Start/Stop Recording| AR[AudioRecorder asr_utils.py]
-    AR -->|WAV PCM Bytes| UI
-    UI -->|Bytes or File Path| AC[ASRClient asr_utils.py]
+    User([User]) --> |Interacts with| FletUI[Flet Frontend]
+    FletUI --> |Mic Input| AudioRec[Audio Recorder PyAudio]
+    FletUI --> |File Selection| Upload[Uploads Directory]
+    FletUI --> |Save Note| Download[Downloads Directory]
     
-    subgraph ASR Engines
-        AC -->|Mode Switcher| HE[HubASREngine]
-        AC -->|Mode Switcher| LE[LocalASREngine]
-        HE -->|REST API| HF[Hugging Face Inference API]
-        LE -->|Local Inference| TM[Transformers / PyTorch]
-    end
-
-    HF -->|Transcription| UI
-    TM -->|Transcription| UI
-    UI -->|Export| Out[Clipboard / .txt File]
+    AudioRec --> |Raw Audio Bytes| ASRClient{ASR Client}
+    Upload --> |Audio File Path| ASRClient
+    
+    ASRClient --> |Mode: Hub| HubEngine[Hub ASR Engine]
+    ASRClient --> |Mode: Local| LocalEngine[Local ASR Engine]
+    
+    HubEngine --> |HTTP Request| HF[Hugging Face API]
+    LocalEngine --> |Inference| Transformers[Transformers & PyTorch]
+    
+    HF --> |Text| ASRClient
+    Transformers --> |Text| ASRClient
+    
+    ASRClient --> |Transcription| FletUI
 ```
-
-### Key Modules:
-- **`main.py`**: Manages the Flet application lifecycle, UI state, theme, and event-driven logic (recording, file picking, settings).
-- **`AudioRecorder`**: Uses `PyAudio` to capture real-time audio in a background thread, ensuring the UI remains responsive.
-- **`ASRClient`**: A factory/wrapper that dynamically routes transcription requests to either `HubASREngine` (cloud) or `LocalASREngine` (on-device).
-- **`ASREngine` (Abstract)**: Defines the common interface for transcription, ensuring consistency across different backends.
-
----
 
 ## Technologies Description
 
-| Technology | Role |
-| :--- | :--- |
-| **Python 3.9+** | The foundational programming language. |
-| **Flet** | Flutter-based framework used for building the responsive desktop and web UI in Python. |
-| **Whisper-large-v3-turbo** | The SOTA ASR model used for fast and accurate multilingual transcription. |
-| **PyAudio** | Handles low-level microphone input and audio stream management. |
-| **Hugging Face Hub** | Provides the `InferenceClient` for cloud-based transcription. |
-| **Transformers & PyTorch** | Power the `LocalASREngine` for on-device inference. |
-| **Python-dotenv** | Manages environment variables like `HUGGINGFACE_TOKEN_READ` and configuration persistence. |
-
----
+- **Python (3.11)**: The core programming language used for audio processing and application logic.
+- **Flet**: A framework used to build the interactive web UI without needing frontend web development stacks.
+- **PyAudio**: Used for capturing audio streams from the user's system microphone.
+- **Hugging Face Hub**: Used for cloud-based inference to transcribe audio without heavy local computing requirements.
+- **PyTorch & Transformers**: Used for local, offline machine learning model execution.
+- **Docker & Docker Compose**: Used to containerize the application, managing complex system dependencies (like FFmpeg and ALSA).
 
 ## Installation
 
+You can install and run the project either locally natively or using Docker. Docker is strongly recommended since audio processing requires system-level dependencies.
+
 ### Prerequisites
-- **Python**: Version 3.9 or higher.
-- **System Dependencies**:
-  - **Windows**: [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) (required to compile `PyAudio`).
-  - **Linux**: `libasound2-dev` and `python3-pyaudio`.
-- **Hugging Face Token**: Required for Cloud (Hub) mode. [Get one here](https://huggingface.co/settings/tokens).
+- Python 3.11+
+- [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/install/)
+- Hugging Face API Token (Required if using Hub mode)
 
-### Step-by-Step Setup
+### Option 1: Docker Installation (Recommended)
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/asr-notepad.git
-   cd asr-notepad
+When using Docker, the container maps device drivers to capture audio from the host machine.
+
+1. Clone the repository and navigate to the project directory.
+2. Ensure you have the `downloads`, `uploads`, and `storage` folders created (they will be volume mapped).
+3. Create a `.env` file in the project root to store your Hugging Face API key, or provide it directly at runtime.
+   ```env
+   # .env
+   HUGGINGFACE_TOKEN_READ=your_hugging_face_token_here
    ```
-
-2. **Install dependencies**:
-   Using `uv` (recommended for speed):
+4. Build and run the container using Docker Compose:
    ```bash
-   uv sync
+   docker-compose up -d --build
    ```
-   Or using `pip`:
+   *(Note: The `docker-compose.yml` mounts `/dev/snd` to capture host audio natively).*
+
+### Option 2: Local Installation
+
+If you wish to run the project natively without Docker:
+
+1. Install system dependencies for audio handling:
+   - **Linux/Ubuntu**: `sudo apt-get install ffmpeg libportaudio2 portaudio19-dev gcc python3-dev alsa-utils`
+   - **Windows/Mac**: Install FFmpeg and verify PyAudio compatibility.
+2. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-
-3. **Configure Environment Variables**:
-   Create a `.env` file in the project root:
-   ```env
-   HUGGINGFACE_TOKEN_READ=your_hugging_face_token_here
-   ```
-
----
+3. Set your environment variables (create a `.env` file layout as detailed above).
 
 ## Usage
 
 ### Running the Application
-From the project root, run:
-```bash
-# Desktop Mode (Default)
-flet run src/main.py
+- **Docker**: After running `docker-compose up -d`, open your browser and navigate to `http://localhost:8080`.
+- **Local Native**: Run `python src/main.py`. This will open the Flet application locally.
 
-# Web Mode
-flet run --web src/main.py
-```
-
-### Operating Modes
-- **Hub Mode**: Uses Hugging Face's infrastructure. Low local resource usage, requires an active internet connection and API token.
-- **Local Mode**: Runs Whisper entirely on your machine. Higher resource usage (GPU recommended), but offers total privacy and offline capability.
-- **Switching Modes**: Click the **Settings (Gear)** icon in the bottom-right corner to toggle between Local and Hub modes.
-
-### Key Workflows
-- **Voice Transcription**: Click the **MIC** button, speak, and click it again to stop and transcribe.
-- **File Transcription**: Click the **UPLOAD** icon to select an existing audio file (`mp3`, `wav`, `flac`) for transcription.
-- **Note Management**: Use the toolbar to create a **New Note**, **Copy to Clipboard**, or **Download** as a `.txt` file.
-
----
+### Application Guide
+1. **Configuring Settings**: 
+   - Click the **Settings (Gear Icon)** in the bottom right corner.
+   - Enter your `Hugging Face API Key` if you wish to use Hub mode.
+   - Toggle the **Local Mode** switch if you want to bypass the API and process transcription natively on your machine using GPU/CPU context.
+2. **Recording Audio**:
+   - Click the **Microphone Icon** below the notepad to start recording. Speak your notes.
+   - Click the Microphone Icon (now red and a stop icon) again to finish. The app will process your speech and append the transcribed text to the notepad.
+3. **Uploading Audio**:
+   - Place audio files `.mp3`, `.wav`, or `.flac` into the `uploads/` folder mapping.
+   - Click the **Upload (Folder) Icon**. Select your file from the dropdown and click "Transcribe".
+4. **Managing Notes**:
+   - Use the toolbar on top to clear the note, copy its contents to your clipboard, or **Download** the file directly to the `downloads/` directory.
 
 ## Features
 
-- 🎙️ **Live Voice Capture**: Integrated recording with real-time UI feedback.
-- 📂 **Multi-Format Support**: Transcribe saved audio files seamlessly.
-- ⚙️ **On-Device vs Cloud**: Flexible engine selection based on your hardware and privacy needs.
-- 📋 **Rich Editor**: Multiline text editor for immediate refinement of transcribed text.
-- 💾 **Persistence**: Automatically saves your ASR preference and API key to `.env`.
-- 🎨 **Modern Design**: Clean Teal-themed interface with dedicated desktop and mobile layouts.
+- **Microphone Dictation**: Voice-to-text recording in real-time.
+- **Audio File Transcription**: Easily transcribe existing media files.
+- **Hybrid Inference Execution**: Switch effortlessly between cloud API (Hub) and local model inference depending on capability.
+- **Notepad Toolkit**: Easily create, append, copy, or download text locally.
+- **Dockerized Ready**: Fast deployment out of the box with `docker-compose`.
 
----
+## API Documentation
 
-## Building the App
+*(Not Applicable)*
 
-To package the application for your specific platform:
-
-| Platform | Command |
-| :--- | :--- |
-| **Windows** | `flet build windows` |
-| **macOS** | `flet build macos` |
-| **Linux** | `flet build linux` |
-| **Android/iOS** | `flet build apk` / `flet build ipa` |
-
-For more options, refer to the [Flet Packaging Documentation](https://flet.dev/docs/publish/).
+ASR Notepad is a standalone User Interface application and does not expose a local REST API endpoint for external HTTP requests or third-party web consumption. The application itself acts as a client connecting outwardly to internal pipelines (`transformers`) or cloud provider APIs (`Hugging Face Inference`).
