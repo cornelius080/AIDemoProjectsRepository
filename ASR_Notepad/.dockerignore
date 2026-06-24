@@ -1,0 +1,39 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Environments
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+notebook/
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Volumes (Avoid copying local data to the image during build)
+downloads/
+uploads/
+storage/
