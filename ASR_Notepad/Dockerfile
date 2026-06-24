@@ -50,6 +50,8 @@ VOLUME ["/app/downloads", "/app/uploads", "/app/storage"]
 # Switch to the non-root user for security
 USER asruser
 
+ENV PATH="/home/asruser/.local/bin:${PATH}"
+
 # Expose the port the app runs on
 EXPOSE 8080
 
