@@ -20,7 +20,7 @@ from agent import RagWebAgent
 
 # Ensure environment file is always in the project directory
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-ENV_FILE = os.path.join(PROJECT_DIR, "apy_keys.env")
+ENV_FILE = os.path.join(PROJECT_DIR, ".env")
 
 # Load environment variables from specific file
 load_dotenv(ENV_FILE)

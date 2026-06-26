@@ -28,9 +28,11 @@ services:
       # Streamlit configuration
       - STREAMLIT_SERVER_HEADLESS=true
       - STREAMLIT_SERVER_PORT=8501
+    env_file:
+      - .env
     volumes:
-      # Named volume to persist API keys between container recreates
-      - rag_data:/app
+      # Bind mount the .env file so the UI can read/write API keys to the host machine
+      - ./.env:/app/.env
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501')"]
@@ -38,10 +40,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-
-# =============================================================================
-# Volumes
-# =============================================================================
-volumes:
-  rag_data:
-    driver: local

@@ -66,7 +66,7 @@ You can configure and begin running this project locally either natively on your
    ```bash
    pip install -r requirements.txt
    ```
-4. **Environment Configuration**: Set up application secrets inside an `.env` file (saved specifically as `apy_keys.env` based on module requests), though keys can interchangeably be imported simply in the Web UI on boot up.
+4. **Environment Configuration**: Set up application secrets inside a `.env` file (you can duplicate the provided `.env.example` file and rename it to `.env`), though keys can interchangeably be imported simply in the Web UI on boot up.
 5. **Start Application**:
    ```bash
    streamlit run streamlit_app.py
