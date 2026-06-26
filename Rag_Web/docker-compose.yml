@@ -11,7 +11,8 @@ services:
       dockerfile: Dockerfile
       args:
         VERSION: ${VERSION:-1.0.0}
-    container_name: rag-web-assistant
+    image: rag-web:latest
+    container_name: rag-web
     ports:
       - "8501:8501"
     environment:
