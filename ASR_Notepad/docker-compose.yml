@@ -7,9 +7,9 @@ services:
     container_name: asr_notepad_container
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      # Map the HuggingFace token from the host environment or .env file
-      - HUGGINGFACE_TOKEN_READ=${HUGGINGFACE_TOKEN_READ:-}
       - DOCKER_RUNNING=true
     restart: unless-stopped
     volumes:

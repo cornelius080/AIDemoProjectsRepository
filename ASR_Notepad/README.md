@@ -133,3 +133,11 @@ If you wish to run the project natively without Docker:
 *(Not Applicable)*
 
 ASR Notepad is a standalone User Interface application and does not expose a local REST API endpoint for external HTTP requests or third-party web consumption. The application itself acts as a client connecting outwardly to internal pipelines (`transformers`) or cloud provider APIs (`Hugging Face Inference`).
+
+## Troubleshooting
+
+**Linux Permission Issues (Volume Mounts)**
+If you encounter "Permission Denied" errors on Linux systems when attempting to upload, manage, or download files via the Docker container, ensure that the mapped volume directories have the correct writing permissions. Although the presence of `.gitkeep` files logically prevents Docker from automatically creating these directories as the `root` user, you might still experience a User ID mismatch between your host OS user and the container's internal user (`asruser`). To quickly resolve this, you can grant broad write access by running:
+```bash
+chmod -R 777 downloads/ uploads/ storage/
+```
