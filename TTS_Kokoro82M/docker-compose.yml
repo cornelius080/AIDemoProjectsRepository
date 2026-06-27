@@ -17,7 +17,7 @@ services:
       - ./downloads:/app/downloads
       - ./uploads:/app/uploads
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/"] 
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"] 
       interval: 30s
       timeout: 10s
       retries: 3
