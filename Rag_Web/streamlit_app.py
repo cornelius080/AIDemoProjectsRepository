@@ -18,9 +18,9 @@ from agent import RagWebAgent
 # Configuration
 # ============================================================================
 
-# Ensure environment file is always in the project directory
+# Ensure environment file is read from the config directory
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-ENV_FILE = os.path.join(PROJECT_DIR, ".env")
+ENV_FILE = os.getenv("ENV_FILE_PATH", os.path.join(PROJECT_DIR, "config", ".env"))
 
 # Load environment variables from specific file
 load_dotenv(ENV_FILE)

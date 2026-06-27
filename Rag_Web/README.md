@@ -66,7 +66,7 @@ You can configure and begin running this project locally either natively on your
    ```bash
    pip install -r requirements.txt
    ```
-4. **Environment Configuration**: Set up application secrets inside a `.env` file (you can duplicate the provided `.env.example` file and rename it to `.env`), though keys can interchangeably be imported simply in the Web UI on boot up.
+4. **Environment Configuration**: Set up application secrets inside a `config/.env` file (you can duplicate the provided `config/.env.example` file and rename it to `.env`), though keys can interchangeably be imported simply in the Web UI on boot up.
 5. **Start Application**:
    ```bash
    streamlit run streamlit_app.py
@@ -80,7 +80,12 @@ The application fully adopts containerized strategies to isolate module distribu
    git clone <repository-url>
    cd Rag_Web
    ```
-2. **Deploy Application Engine**:
+2. **Grant Permissions (Recommended)**:
+   To avoid permission conflicts when the Docker container attempts to write UI-saved API keys back to your local environment file, grant read and write permissions to the config folder:
+   ```bash
+   chmod -R 777 ./config
+   ```
+3. **Deploy Application Engine**:
    ```bash
    docker-compose up --build
    ```
