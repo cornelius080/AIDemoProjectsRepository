@@ -27,6 +27,8 @@ services:
     volumes:
       # Map the config directory that contains the .env file
       - ./config:/app/config
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501')"]
