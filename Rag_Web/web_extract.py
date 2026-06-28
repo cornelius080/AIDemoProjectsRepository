@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 
 # Load environment variables from specific file
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-ENV_FILE = os.path.join(PROJECT_DIR, "apy_keys.env")
+ENV_FILE = os.getenv("ENV_FILE_PATH", os.path.join(PROJECT_DIR, "config", ".env"))
 load_dotenv(ENV_FILE)
 
 
