@@ -27,8 +27,8 @@ services:
     volumes:
       # Map the config directory that contains the .env file
       - ./config:/app/config
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      - ollama-engine
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501')"]
@@ -36,3 +36,15 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  ollama-engine:
+    image: ollama/ollama:latest
+    container_name: ollama-engine
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
