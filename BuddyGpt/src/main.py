@@ -155,12 +155,6 @@ async def main(page: ft.Page):
     ################  
     # Event handlers
     ################
-    def save_edited_message():
-        """Saves a message that has been edited."""
-        if current_editing_message_id and edit_dialog.content.value:
-            page.close(edit_dialog)
-            pass 
-
     async def update_message_list(optimistic_messages: List[Message] = []):
         """
         Updates the UI message list by fetching the latest messages or using optimistic ones.
