@@ -12,7 +12,6 @@ services:
     environment:
       - FLET_SECRET_KEY=${FLET_SECRET_KEY:-flet_secret_key_placeholder}
       - DOCKER_RUNNING=true
-    restart: unless-stopped
     volumes:
       - ./downloads:/app/downloads
       - ./uploads:/app/uploads
