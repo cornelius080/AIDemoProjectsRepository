@@ -1,0 +1,25 @@
+services:
+  asr-notepad:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: asr-notepad:latest
+    container_name: asr_notepad_container
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - DOCKER_RUNNING=true
+    restart: unless-stopped
+    volumes:
+      - ./downloads:/app/downloads
+      - ./uploads:/app/uploads
+      - ./storage:/app/storage
+    
+    # NOTE: PyAudio records audio from the system it runs on (the container).
+    # Since you run on Ubuntu, we map the host's ALSA sound devices to pass the microphone inside.
+    devices:
+      - /dev/snd:/dev/snd
+    group_add:
+      - audio

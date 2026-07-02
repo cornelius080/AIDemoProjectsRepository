@@ -22,11 +22,11 @@ class TTSClient:
         self.provider = provider
         self.model = model
 
-        token = os.getenv("HF_TOKEN_READ")
+        token = os.getenv("HUGGINGFACE_TOKEN_READ") or os.getenv("HF_TOKEN_READ")
         if token is None:
             raise RuntimeError(
                 "Missing HuggingFace token. Set the environment variable "
-                "HF_TOKEN_READ or pass an explicit token to InferenceClient."
+                "HUGGINGFACE_TOKEN_READ or pass an explicit token to InferenceClient."
             )
         
         self._client = InferenceClient(provider=self.provider, api_key=token)

@@ -16,6 +16,7 @@ services:
     volumes:
       - ./downloads:/app/downloads
       - ./uploads:/app/uploads
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"] 
       interval: 30s
